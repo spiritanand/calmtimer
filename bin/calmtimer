@@ -16,7 +16,9 @@ EOF
 }
 
 seconds() {
-  local s n='([0-9]+[.]?[0-9]*|[.][0-9]+)' h=0 m=0 x=0 re
+  local s n='([0-9]+[.]?[0-9]*|[.][0-9]+)' h=0 m=0 x=0 re='[0-9.][[:space:]]+[0-9.]'
+  # "10 3" is two numbers, not 103
+  [[ $1 =~ $re ]] && return 1
   s="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
   [ -n "$s" ] || return 1
   re="^$n(h|hr|hrs|hour|hours)"
@@ -53,7 +55,7 @@ start() {
   local -a w
   shift || true
   # Raycast users often type "60 tea" into the first field instead of tabbing to the label
-  if [ -z "$*" ] && [[ $raw = *[[:space:]]* ]]; then
+  if [ -z "$*" ] && [[ $raw = *[[:space:]]* ]] && ! seconds "$raw" >/dev/null; then
     read -r -a w <<<"$raw"
     for ((k = ${#w[@]} - 1; k >= 1; k--)); do
       if seconds "${w[*]:0:k}" >/dev/null; then raw="${w[*]:0:k}"; set -- "${w[@]:k}"; break; fi
@@ -63,7 +65,7 @@ start() {
   label="$(printf '%s' "$*" | tr -d '\000-\037|' | sed -e 's/^[-~[:space:]]*//' -e 's/[[:space:]]*$//')"
   if ! secs="$(seconds "$raw")"; then
     secs=$DEFAULT
-    [ -n "$raw" ] && warn="⚠️ Couldn't read \"$raw\" · "
+    [[ $raw = *[![:space:]]* ]] && warn="⚠️ Couldn't read \"$raw\" · "
   fi
   now="$(date +%s)"
   end=$((now + secs))

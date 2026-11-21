@@ -14,7 +14,8 @@ While a timer runs, the menu bar shows a timer icon and its label (`⏱ tea`), w
 |---|---|
 | `60` or nothing | 60 minutes (a bare number is minutes) |
 | `1h30`, `1h 30m`, `1.5h` | 90 minutes |
-| `90s`, `2m30s` | seconds work too |
+| `90s`, `2m30s`, `2m30` | seconds work too |
+| `60 tea` in one field | 60 minutes labelled tea (same as Tab to the label field) |
 
 Anything up to 24 hours. Input it can't read starts a 60-minute timer and says so.
 
