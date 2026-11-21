@@ -44,5 +44,5 @@ cat <<EOF
 Done. Try it: calmtimer start 5s test
 
 Raycast: Settings → Extensions → + → Add Script Directory → $ROOT/raycast
-Then give "Start Timer" the alias t, and type: t 60 tea
+Then give "Start Timer" the alias t, and type: t 60 tea (Tab or a space before the label both work)
 EOF

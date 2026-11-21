@@ -22,7 +22,10 @@ seconds() {
   re="^$n(h|hr|hrs|hour|hours)"
   if [[ $s =~ $re ]]; then h=${BASH_REMATCH[1]}; s=${s:${#BASH_REMATCH[0]}}; fi
   re="^$n(m|min|mins|minute|minutes)"
-  if [[ $s =~ $re ]]; then m=${BASH_REMATCH[1]}; s=${s:${#BASH_REMATCH[0]}}
+  if [[ $s =~ $re ]]; then
+    m=${BASH_REMATCH[1]}; s=${s:${#BASH_REMATCH[0]}}
+    re="^$n\$"
+    if [[ $s =~ $re ]]; then x=$s; s=""; fi
   else
     re="^$n\$"
     if [[ $s =~ $re ]]; then m=$s; s=""; fi
@@ -46,8 +49,16 @@ clock() { date -r "$1" "+%l:%M %p" | sed 's/^ //'; }
 refresh() { open -g "swiftbar://refreshplugin?name=calmtimer" >/dev/null 2>&1 || true; }
 
 start() {
-  local raw=${1:-} label secs warn="" now end id
+  local raw=${1:-} label secs warn="" now end id k
+  local -a w
   shift || true
+  # Raycast users often type "60 tea" into the first field instead of tabbing to the label
+  if [ -z "$*" ] && [[ $raw = *[[:space:]]* ]]; then
+    read -r -a w <<<"$raw"
+    for ((k = ${#w[@]} - 1; k >= 1; k--)); do
+      if seconds "${w[*]:0:k}" >/dev/null; then raw="${w[*]:0:k}"; set -- "${w[@]:k}"; break; fi
+    done
+  fi
   # SwiftBar treats "|" as its param separator and leading "-"/"~" as menu structure
   label="$(printf '%s' "$*" | tr -d '\000-\037|' | sed -e 's/^[-~[:space:]]*//' -e 's/[[:space:]]*$//')"
   if ! secs="$(seconds "$raw")"; then
@@ -85,15 +96,14 @@ run() {
 }
 
 list() {
-  local f id end secs label boot now
-  boot="$(sysctl -n kern.boottime | sed 's/.*sec = \([0-9]*\).*/\1/')"
+  local f id end secs label now
   now="$(date +%s)"
   for f in "$TIMERS"/*; do
     [ -f "$f" ] || continue
     id=${f##*/}
     { read -r end && read -r secs && IFS= read -r label; } < "$f" 2>/dev/null || continue
-    # a timer from before the last boot lost its runner; one long past its end lost it some other way
-    if [ "${id%%-*}" -lt "$boot" ] || [ "$end" -lt $((now - 60)) ]; then
+    # its runner died (restart, logout, kill); the grace covers the moment between writing the file and spawning
+    if [ $((now - ${id%%-*})) -gt 5 ] && ! pgrep -qf "calmtimer _run $id\$"; then
       rm -f "$f"
       continue
     fi

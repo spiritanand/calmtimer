@@ -32,6 +32,8 @@ cancel() { echo "$1 | bash=\"$CLI\" param1=cancel param2=$2 terminal=false refre
 IFS=$'\t' read -r end _ _ label <<<"$(printf '%s\n' "$TIMERS" | head -n 1)"
 extra=""
 [ "$count" -gt 1 ] && extra=" +$((count - 1))"
+# perl, not ${label:0:n}: SwiftBar may run us without a UTF-8 locale, where bash would cut mid-character
+label="$(perl -CSA -e '$s = shift; print length($s) > 24 ? substr($s, 0, 23) . "\x{2026}" : $s' "$label")"
 echo "$label$extra | sfimage=timer sfsize=13 emojize=false"
 echo "---"
 
