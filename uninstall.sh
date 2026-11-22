@@ -10,7 +10,9 @@ unlink_if_ours() { [ -L "$1" ] && [ "$(readlink "$1")" = "$2" ] && rm "$1" && ec
 PLUGINS="$(defaults read com.ameba.SwiftBar PluginDirectory 2>/dev/null || true)"
 PLUGINS="${PLUGINS/#\~/$HOME}"
 [ -n "$PLUGINS" ] && unlink_if_ours "$PLUGINS/calmtimer.10s.sh" "$ROOT/swiftbar/calmtimer.sh"
-for p in /opt/homebrew /usr/local; do unlink_if_ours "$p/bin/calmtimer" "$ROOT/bin/calmtimer"; done
+for p in "$(brew --prefix 2>/dev/null)" /opt/homebrew /usr/local; do
+  [ -n "$p" ] && unlink_if_ours "$p/bin/calmtimer" "$ROOT/bin/calmtimer"
+done
 rm -rf "$HOME/Library/Application Support/calmtimer"
 
 echo "Done. Remove the script directory from Raycast settings if you added it."

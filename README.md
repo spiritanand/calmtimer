@@ -40,6 +40,8 @@ calmtimer cancel ID|all
 calmtimer list
 ```
 
+On the command line, quote a duration with spaces: `calmtimer start "1h 30m" tea`.
+
 Timers live as small files in `~/Library/Application Support/calmtimer/timers`. They count real clock time, so a timer that ends while the Mac sleeps rings right after it wakes. Timers don't survive a restart.
 
 The sound is calmpomo's break-end note.

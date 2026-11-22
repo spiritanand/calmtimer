@@ -1,7 +1,11 @@
 #!/bin/bash
 set -u
 
-SELF="$(readlink "$0" || echo "$0")"
+SELF="$0"
+while [ -L "$SELF" ]; do
+  l="$(readlink "$SELF")"
+  case $l in /*) SELF=$l ;; *) SELF="$(dirname "$SELF")/$l" ;; esac
+done
 ROOT="$(cd "$(dirname "$SELF")/.." && pwd)"
 TIMERS="${CALMTIMER_STATE_DIR:-$HOME/Library/Application Support/calmtimer}/timers"
 SOUND="$ROOT/sounds/ting.wav"
@@ -9,7 +13,7 @@ DEFAULT=3600
 
 usage() {
   cat <<EOF
-usage: calmtimer start [DURATION] [LABEL...]   DURATION: 60 (minutes), 1h30, 90s, 1.5h
+usage: calmtimer start [DURATION] [LABEL...]   DURATION: 60 (minutes), 1h30, 90s, 1.5h; quote spaced ones: "1h 30m"
        calmtimer cancel ID|all
        calmtimer list
 EOF
@@ -51,18 +55,25 @@ clock() { date -r "$1" "+%l:%M %p" | sed 's/^ //'; }
 refresh() { open -g "swiftbar://refreshplugin?name=calmtimer" >/dev/null 2>&1 || true; }
 
 start() {
-  local raw=${1:-} label secs warn="" now end id k
+  local raw=${1:-} rest label secs warn="" now end id k nbsp=$'\xc2\xa0'
   local -a w
   shift || true
+  rest="$*"
+  # Option+Space types a no-break space
+  raw=${raw//$nbsp/ }
+  rest=${rest//$nbsp/ }
   # Raycast users often type "60 tea" into the first field instead of tabbing to the label
-  if [ -z "$*" ] && [[ $raw = *[[:space:]]* ]] && ! seconds "$raw" >/dev/null; then
+  if [[ $rest != *[![:space:]]* ]] && [[ $raw = *[[:space:]]* ]] && ! seconds "$raw" >/dev/null; then
     read -r -a w <<<"$raw"
     for ((k = ${#w[@]} - 1; k >= 1; k--)); do
-      if seconds "${w[*]:0:k}" >/dev/null; then raw="${w[*]:0:k}"; set -- "${w[@]:k}"; break; fi
+      # a bare number after a unit starts the label: "5 min 2 eggs"
+      [ "$k" -gt 1 ] && [[ ${w[k-1]} = *[0-9.] ]] && continue
+      if seconds "${w[*]:0:k}" >/dev/null; then raw="${w[*]:0:k}"; rest="${w[*]:k}"; break; fi
     done
   fi
-  # SwiftBar treats "|" as its param separator and leading "-"/"~" as menu structure
-  label="$(printf '%s' "$*" | tr -d '\000-\037|' | sed -e 's/^[-~[:space:]]*//' -e 's/[[:space:]]*$//')"
+  # SwiftBar treats "|" as its param separator, "\" as an escape and leading "-"/"~" as menu structure
+  # shellcheck disable=SC1003
+  label="$(printf '%s' "$rest" | tr -d '\000-\037|\\' | sed -e 's/^[-~[:space:]]*//' -e 's/[[:space:]]*$//')"
   if ! secs="$(seconds "$raw")"; then
     secs=$DEFAULT
     [[ $raw = *[![:space:]]* ]] && warn="⚠️ Couldn't read \"$raw\" · "

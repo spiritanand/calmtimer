@@ -7,7 +7,11 @@
 # <swiftbar.hideDisablePlugin>true</swiftbar.hideDisablePlugin>
 # <swiftbar.hideSwiftBar>true</swiftbar.hideSwiftBar>
 
-SELF="$(readlink "$0" || echo "$0")"
+SELF="$0"
+while [ -L "$SELF" ]; do
+  l="$(readlink "$SELF")"
+  case $l in /*) SELF=$l ;; *) SELF="$(dirname "$SELF")/$l" ;; esac
+done
 CLI="$(cd "$(dirname "$SELF")/.." && pwd)/bin/calmtimer"
 
 TIMERS="$("$CLI" list)"
@@ -35,16 +39,16 @@ cancel() { echo "$1 | bash=\"$CLI\" param1=cancel param2=$2 terminal=false refre
 IFS=$'\t' read -r end _ _ label <<<"$(printf '%s\n' "$TIMERS" | head -n 1)"
 extra=""
 [ "$count" -gt 1 ] && extra=" +$((count - 1))"
-echo "$(short "$label" 24)$extra | sfimage=timer sfsize=13 emojize=false"
+echo "$(short "$label" 24)$extra | sfimage=timer sfsize=13 emojize=false symbolize=false"
 echo "---"
 
 while IFS=$'\t' read -r end _ id label; do
   info="$(short "${label:-Timer}" 40) · $(left "$end") · ends $(clock "$end")"
   if [ "$count" -eq 1 ]; then
-    echo "$info | disabled=true emojize=false"
+    echo "$info | disabled=true emojize=false symbolize=false"
     cancel "Cancel" "$id"
   else
-    echo "$info | emojize=false"
+    echo "$info | emojize=false symbolize=false"
     cancel "--Cancel" "$id"
   fi
 done <<<"$TIMERS"
