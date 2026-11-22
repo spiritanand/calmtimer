@@ -9,7 +9,9 @@ unlink_if_ours() { [ -L "$1" ] && [ "$(readlink "$1")" = "$2" ] && rm "$1" && ec
 
 PLUGINS="$(defaults read com.ameba.SwiftBar PluginDirectory 2>/dev/null || true)"
 PLUGINS="${PLUGINS/#\~/$HOME}"
-[ -n "$PLUGINS" ] && unlink_if_ours "$PLUGINS/calmtimer.10s.sh" "$ROOT/swiftbar/calmtimer.sh"
+if [ -n "$PLUGINS" ]; then
+  for n in 1s 10s; do unlink_if_ours "$PLUGINS/calmtimer.$n.sh" "$ROOT/swiftbar/calmtimer.sh"; done
+fi
 for p in "$(brew --prefix 2>/dev/null)" /opt/homebrew /usr/local; do
   [ -n "$p" ] && unlink_if_ours "$p/bin/calmtimer" "$ROOT/bin/calmtimer"
 done

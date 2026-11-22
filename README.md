@@ -6,7 +6,7 @@ A sibling of [calmpomo](https://github.com/spiritanand/calmpomo): no cycles, no 
 
 ## What you see
 
-While a timer runs, the menu bar shows a timer icon and its label (`⏱ tea`), without a countdown. Click it to see time left and when it ends, and to cancel. With more than one timer it shows the one ending first plus a count (`⏱ tea +1`), and each timer gets its own Cancel. When nothing is running the item disappears.
+While a timer runs, the menu bar shows a timer icon, its label and a live countdown (`⏱ tea 59:12`, or `1:05:12` past an hour). Click it to see when it ends and to cancel. With more than one timer it shows the one ending first plus a count (`⏱ tea 4:10 +1`), and each timer gets its own Cancel. When nothing is running the item disappears.
 
 ## Durations
 
