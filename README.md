@@ -2,7 +2,7 @@
 
 A one-shot timer for macOS, started from Raycast. Type `t 60 tea`, and an hour later a soft note plays twice and a notification says the tea timer is done.
 
-calmpomo's quieter sibling: no cycles, no breaks, one timer and a ting.
+A sibling of [calmpomo](https://github.com/spiritanand/calmpomo): no cycles, no breaks, one timer and a ting.
 
 ## What you see
 
@@ -24,6 +24,8 @@ Anything up to 24 hours. Input it can't read starts a 60-minute timer and says s
 Needs [Homebrew](https://brew.sh). Installs [SwiftBar](https://github.com/swiftbar/SwiftBar) if missing.
 
 ```
+git clone https://github.com/spiritanand/calmtimer ~/calmtimer
+cd ~/calmtimer
 ./install.sh
 calmtimer start 5s test
 ```
