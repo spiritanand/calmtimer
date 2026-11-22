@@ -28,7 +28,9 @@ if [ -z "$PLUGINS" ]; then
   defaults write com.ameba.SwiftBar PluginDirectory "$PLUGINS"
 fi
 mkdir -p "$PLUGINS"
-ln -sf "$ROOT/swiftbar/calmtimer.sh" "$PLUGINS/calmtimer.10s.sh"
+# 1s so the countdown ticks; older installs linked it as calmtimer.10s.sh
+[ "$(readlink "$PLUGINS/calmtimer.10s.sh" 2>/dev/null)" = "$ROOT/swiftbar/calmtimer.sh" ] && rm "$PLUGINS/calmtimer.10s.sh"
+ln -sf "$ROOT/swiftbar/calmtimer.sh" "$PLUGINS/calmtimer.1s.sh"
 
 say "Linking the calmtimer command"
 ln -sf "$ROOT/bin/calmtimer" "$BREW_PREFIX/bin/calmtimer"

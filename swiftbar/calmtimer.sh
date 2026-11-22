@@ -1,6 +1,6 @@
 #!/bin/bash
 # <xbar.title>calmtimer</xbar.title>
-# <xbar.desc>One-shot timers: label in the menu bar, time left on click</xbar.desc>
+# <xbar.desc>One-shot timers: label and countdown in the menu bar</xbar.desc>
 # <swiftbar.hideAbout>true</swiftbar.hideAbout>
 # <swiftbar.hideRunInTerminal>true</swiftbar.hideRunInTerminal>
 # <swiftbar.hideLastUpdated>true</swiftbar.hideLastUpdated>
@@ -13,6 +13,11 @@ while [ -L "$SELF" ]; do
   case $l in /*) SELF=$l ;; *) SELF="$(dirname "$SELF")/$l" ;; esac
 done
 CLI="$(cd "$(dirname "$SELF")/.." && pwd)/bin/calmtimer"
+
+# runs every second, so stay cheap when idle
+shopt -s nullglob
+files=("${CALMTIMER_STATE_DIR:-$HOME/Library/Application Support/calmtimer}"/timers/*)
+[ ${#files[@]} -gt 0 ] || exit 0
 
 TIMERS="$("$CLI" list)"
 [ -n "$TIMERS" ] || exit 0
@@ -29,6 +34,13 @@ left() {
   else echo "$((m / 60))h $((m % 60))m left"; fi
 }
 
+countdown() {
+  local s=$(($1 - now))
+  [ "$s" -lt 0 ] && s=0
+  if [ "$s" -ge 3600 ]; then printf '%d:%02d:%02d' $((s / 3600)) $((s % 3600 / 60)) $((s % 60))
+  else printf '%d:%02d' $((s / 60)) $((s % 60)); fi
+}
+
 clock() { date -r "$1" "+%l:%M %p" | sed 's/^ //'; }
 
 # perl, not ${label:0:n}: SwiftBar may run us without a UTF-8 locale, where bash would cut mid-character
@@ -39,7 +51,7 @@ cancel() { echo "$1 | bash=\"$CLI\" param1=cancel param2=$2 terminal=false refre
 IFS=$'\t' read -r end _ _ label <<<"$(printf '%s\n' "$TIMERS" | head -n 1)"
 extra=""
 [ "$count" -gt 1 ] && extra=" +$((count - 1))"
-echo "$(short "$label" 24)$extra | sfimage=timer sfsize=13 emojize=false symbolize=false"
+echo "${label:+$(short "$label" 20) }$(countdown "$end")$extra | sfimage=timer sfsize=13 emojize=false symbolize=false"
 echo "---"
 
 while IFS=$'\t' read -r end _ id label; do
