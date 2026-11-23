@@ -8,7 +8,7 @@ while [ -L "$SELF" ]; do
 done
 ROOT="$(cd "$(dirname "$SELF")/.." && pwd)"
 TIMERS="${CALMTIMER_STATE_DIR:-$HOME/Library/Application Support/calmtimer}/timers"
-SOUND="$ROOT/sounds/ting.wav"
+SOUND="$ROOT/sounds/chime.wav"
 DEFAULT=3600
 
 usage() {
@@ -103,9 +103,10 @@ run() {
   refresh
   osascript -e 'on run argv' -e 'display notification (item 2 of argv) with title (item 1 of argv)' -e 'end run' \
     "⏱ ${label:-Timer}" "$(human "$secs") timer is done" >/dev/null 2>&1 &
+  afplay "$SOUND" &
+  sleep 0.6
   afplay "$SOUND"
-  sleep 0.2
-  afplay "$SOUND"
+  wait
 }
 
 list() {
