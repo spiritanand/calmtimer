@@ -6,9 +6,8 @@ while [ -L "$SELF" ]; do
   l="$(readlink "$SELF")"
   case $l in /*) SELF=$l ;; *) SELF="$(dirname "$SELF")/$l" ;; esac
 done
-ROOT="$(cd "$(dirname "$SELF")/.." && pwd)"
 TIMERS="${CALMTIMER_STATE_DIR:-$HOME/Library/Application Support/calmtimer}/timers"
-SOUND="$ROOT/sounds/ting.wav"
+SOUND=/System/Library/Sounds/Tink.aiff
 DEFAULT=3600
 
 usage() {
@@ -103,9 +102,11 @@ run() {
   refresh
   osascript -e 'on run argv' -e 'display notification (item 2 of argv) with title (item 1 of argv)' -e 'end run' \
     "⏱ ${label:-Timer}" "$(human "$secs") timer is done" >/dev/null 2>&1 &
-  afplay "$SOUND"
-  sleep 0.2
-  afplay "$SOUND"
+  for _ in 1 2 3 4; do
+    afplay "$SOUND" &
+    sleep 0.4
+  done
+  wait
 }
 
 list() {

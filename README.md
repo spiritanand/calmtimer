@@ -1,6 +1,6 @@
 # calmtimer
 
-A one-shot timer for macOS, started from Raycast. Type `t 60 tea`, and an hour later a soft note plays twice and a notification says the tea timer is done.
+A one-shot timer for macOS, started from Raycast. Type `t 60 tea`, and an hour later a soft ting rings four times and a notification says the tea timer is done.
 
 A sibling of [calmpomo](https://github.com/spiritanand/calmpomo): no cycles, no breaks, one timer and a ting.
 
@@ -46,4 +46,4 @@ On the command line, quote a duration with spaces: `calmtimer start "1h 30m" tea
 
 Timers live as small files in `~/Library/Application Support/calmtimer/timers`. They count real clock time, so a timer that ends while the Mac sleeps rings right after it wakes. Timers don't survive a restart.
 
-The sound is calmpomo's break-end note.
+The sound is macOS's built-in Tink, rung four times.
