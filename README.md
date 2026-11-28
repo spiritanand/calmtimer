@@ -46,4 +46,4 @@ On the command line, quote a duration with spaces: `calmtimer start "1h 30m" tea
 
 Timers live as small files in `~/Library/Application Support/calmtimer/timers`. They count real clock time, so a timer that ends while the Mac sleeps rings right after it wakes. Timers don't survive a restart.
 
-The sound is calmpomo's rising two-note chime, played twice.
+The sound is calmpomo's rising two-note chime a fifth higher (D to A), played twice, so a timer ending sounds different from a pomodoro. It's generated with calmpomo's `scripts/gen-sounds.py` synth, so there are no audio samples to license.
